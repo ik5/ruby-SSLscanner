@@ -5,7 +5,9 @@ require 'getoptlong'
 require 'openssl'
 require 'socket'
 
-USAGE = "Usage: #{File.basename($0)}: [-s <server hostname/ip>] [-p <port>] [-h <hosts file>] [-d <debug>] [-c <certificate information>] [-o <output file>] [-t <output file type>]"
+USAGE = <<EOF
+Usage: #{File.basename(__FILE__)}: [-s <server hostname/ip>] [-p <port>] [-h <hosts file>] [-d <debug>] [-c <certificate information>] [-o <output file>] [-t <output file type>]
+EOF
 
 # SSL Scanner by Bar Hofesh (bararchy) bar.hofesh@gmail.com
 
@@ -24,7 +26,7 @@ class Scanner
 
     PROTOCOLS     = [SSLV2, SSLV3, TLSV1, TLSV1_1, TLSV1_2]
     CIPHERS       = 'ALL::HIGH::MEDIUM::LOW::SSL23'
-    PROTOCOL_COLOR_NAME = { 
+    PROTOCOL_COLOR_NAME = {
       SSLV2   => 'SSLv2'.colorize(:red),
       SSLV3   => 'SSLv3'.colorize(:yellow),
       TLSV1   => 'TLSv1'.bold,
@@ -34,19 +36,22 @@ class Scanner
 
     TRUTH_TABLE = { true => 'true'.colorize(:green), false => 'false'.colorize(:red) }
 
+    TITLES = ['', 'Version', 'Cipher', '   Bits', 'Vulnerability']
+
 
     def ssl_scan
 
         # Index by color
-        printf "Scanning, results will be presented by the following colors [%s / %s / %s]\n\n" % ["strong".colorize(:green), "weak".colorize(:yellow), "vulnerable".colorize(:red)]
-        
+        printf "Scanning, results will be presented by the following colors [%s / %s / %s]\n\n" % [
+          'strong'.colorize(:green), 'weak'.colorize(:yellow), 'vulnerable'.colorize(:red)]
+
         if @host_file.to_s == ""
-            if @filename and @ftype == "text"
-                to_text_file("%-15s %-15s %-19s %-14s %s\n" % ["", "Version", "Cipher", "   Bits", "Vulnerability"])
+            if @filename and @ftype == 'text'
+                to_text_file("%-15s %-15s %-19s %-14s %s\n" % TITLES)
             end
             check_s_client(@server, @port)
             puts "Cipher Checks: ".bold
-            printf "%-15s %-15s %-19s %-14s %s\n" % ["", "Version", "Cipher", "   Bits", "Vulnerability"]
+            printf "%-15s %-15s %-19s %-14s %s\n" % TITLES
             scan(@server, @port)
             if @check_cert
                 puts get_certificate_information(@server, @port)
@@ -56,8 +61,8 @@ class Scanner
                 end
             end
         else
-            if @filename and @ftype == "text"
-                to_text_file("%-15s %-15s %-19s %-14s %s\n" % ["", "Version", "Cipher", "   Bits", "Vulnerability"])
+            if @filename and @ftype == 'text'
+                to_text_file("%-15s %-15s %-19s %-14s %s\n" % TITLES)
             end
             File.readlines("#{@host_file}").each do |line|
                 server, port = line.split(":")
@@ -65,7 +70,7 @@ class Scanner
                 puts "\r\nScanning #{server} on port #{port}".blue
                 check_s_client(server, port)
                 puts "Cipher Checks: ".bold
-                printf "%-15s %-15s %-19s %-14s %s\n" % ["", "Version", "Cipher", "   Bits", "Vulnerability"]
+                printf "%-15s %-15s %-19s %-14s %s\n" % TITLES
                 scan(server, port)
                 if @check_cert
                     puts get_certificate_information(server, port)
