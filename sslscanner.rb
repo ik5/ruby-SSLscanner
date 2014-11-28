@@ -133,7 +133,7 @@ class Scanner
                     end
                     socket_destination = OpenSSL::SSL::SSLSocket.new tcp_socket, ssl_context
                     socket_destination.connect
-                    if protocol == SSLV3            
+                    if protocol == SSLV3
                         ssl_version, cipher, bits, vulnerability = parse(cipher[0], cipher[3], p)
                         result = "Server supports: %-22s %-42s %-10s %s\n"%[ssl_version, cipher, bits, vulnerability]
                         printf result
@@ -151,7 +151,7 @@ class Scanner
                 rescue OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ETIMEDOUT, SocketError => e
                     if @debug
                         puts e.message
-                        puts e.backtrace.join "\n"                        
+                        puts e.backtrace.join "\n"
                         if p == SSLV2
                             puts "Server Don't Supports: SSLv2 #{c[0]} #{c[2]} bits"
                         elsif p == SSLV3
